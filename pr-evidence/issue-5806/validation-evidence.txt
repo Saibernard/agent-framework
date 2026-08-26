@@ -1,0 +1,48 @@
+Microsoft Agent Framework issue #5806 - local validation evidence
+Date: 2026-08-25
+Base commit: af461de51da16f5cb800ff7febc0f8f96355607a
+Base equals current origin/main: True
+
+LIVE AZURE GPT-4.1 + ASPIRE DASHBOARD
+Non-streaming response:
+  status: completed
+  output: live trace smoke passed
+  response ID mapped correctly: True
+  retrieved spans: 4
+  trace ID: 394463915dffa9645227c48933caf544
+  operations: POST /v1/responses/ > orchestrate_tools > chat gpt-4 > POST
+  all span statuses OK: True
+  observed HTTP codes: 200
+
+Streaming response:
+  output: streaming trace passed
+  response ID mapped correctly: True
+  retrieved spans: 4
+  trace ID: 4175b84afff676ff9f66db38b152b381
+  operations: POST /v1/responses/ > orchestrate_tools > chat gpt-4 > POST
+  all span statuses OK: True
+  observed HTTP codes: 200
+
+Cancellation behavior:
+  client cancelled after receiving a response ID
+  trace lookup returned HTTP 404; no partial/stale mapping was exposed
+
+Concurrency behavior:
+  live two-call probe was quota-limited by the capacity-1 Azure deployment (HTTP 429)
+  deterministic regression: 12 simultaneous responses + 12 simultaneous trace lookups
+  parser isolation regression: 100 parallel SSE captures
+
+LOCAL REGRESSION VALIDATION
+Unit tests: 100/100 passed; 0 failed; 0 skipped
+Release package build: PASS (0 warnings, 0 errors)
+Release AppHost sample build: PASS (0 warnings, 0 errors)
+Frontend production build: PASS
+Frontend lint: 0 errors, 13 pre-existing warnings
+git diff --check: PASS
+Staged changes: none
+Commits/pushes: none
+Git identity: Saibernard Yogendran <bernie97@seas.upenn.edu>
+
+EVIDENCE HANDLING
+Screenshots replay the captured live payload through the built DevUI for deterministic rendering.
+The Azure resource hostname is redacted. No API key, bearer token, or connection string is included.
